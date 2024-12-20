@@ -274,7 +274,6 @@ void mainMenu()
 
 int main()
 {
-    // Load the users from file into the map (for persistent storage)
     ifstream inFile("users.txt");
     if (inFile.is_open())
     {
