@@ -154,6 +154,72 @@ public:
     {
         return bookSeatsHelper(root, flightID, numSeats);
     }
+
+    bool updateFlight(int flightID, const string &newTime, double newFare, int newSeats)
+    {
+        BSTNode *node = root;
+        while (node)
+        {
+            if (node->flight.flightID == flightID)
+            {
+                node->flight.time = newTime;
+                node->flight.fare = newFare;
+                node->flight.availableSeats = newSeats;
+                return true;
+            }
+            else if (flightID < node->flight.flightID)
+                node = node->left;
+            else
+                node = node->right;
+        }
+        return false; // Flight not found
+    }
+
+    BSTNode *removeFlight(BSTNode *node, int flightID)
+    {
+        if (!node)
+            return node;
+
+        if (flightID < node->flight.flightID)
+            node->left = removeFlight(node->left, flightID);
+        else if (flightID > node->flight.flightID)
+            node->right = removeFlight(node->right, flightID);
+        else
+        {
+            if (!node->left)
+            {
+                BSTNode *temp = node->right;
+                delete node;
+                return temp;
+            }
+            else if (!node->right)
+            {
+                BSTNode *temp = node->left;
+                delete node;
+                return temp;
+            }
+
+            BSTNode *temp = findMin(node->right);
+            node->flight = temp->flight;
+            node->right = removeFlight(node->right, temp->flight.flightID);
+        }
+        return node;
+    }
+
+    // Helper to find the minimum node
+    BSTNode *findMin(BSTNode *node)
+    {
+        while (node && node->left != nullptr)
+            node = node->left;
+        return node;
+    }
+
+    // Public function to remove a flight
+    bool removeFlight(int flightID)
+    {
+        root = removeFlight(root, flightID);
+        return true;
+    }
 };
 
 // Function to calculate random fare for a flight
@@ -200,7 +266,7 @@ bool processPayment(const string &userName, int fare)
     // Simulate a delay to process payment
     cout << "Processing payment...\n";
     (std::chrono::seconds(3));
- // 3 seconds delay
+    // 3 seconds delay
 
     // Always make payment successful
     cout << "Payment successful!\n";
@@ -322,8 +388,102 @@ void mainMenuPassenger(FlightBST &flightBST)
     }
 }
 
+void mainMenuStaff(FlightBST &flightBST)
+{
+    while (true)
+    {
+        int choice;
+        cout << "\nWelcome, Airline Staff!\n";
+        cout << "1. View all available flights\n";
+        cout << "2. Add a new flight\n";
+        cout << "3. Update a flight\n";
+        cout << "4. Remove a flight\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            flightBST.displayAllFlights(); // Reuse existing function to display flights
+            break;
+        case 2:
+        {
+            string origin, destination, date, time;
+            double fare;
+            int seats;
+
+            cout << "Enter Origin: ";
+            cin.ignore();
+            getline(cin, origin);
+
+            cout << "Enter Destination: ";
+            getline(cin, destination);
+
+            cout << "Enter Date (YYYY-MM-DD): ";
+            getline(cin, date);
+
+            cout << "Enter Time (HH:MM): ";
+            getline(cin, time);
+
+            cout << "Enter Fare: ";
+            cin >> fare;
+
+            cout << "Enter Available Seats: ";
+            cin >> seats;
+
+            flightBST.addFlight(origin, destination, date, time, fare, seats);
+            cout << "Flight added successfully!\n";
+            break;
+        }
+        case 3:
+        {
+            int flightID;
+            string newTime;
+            double newFare;
+            int newSeats;
+
+            cout << "Enter Flight ID to update: ";
+            cin >> flightID;
+
+            cout << "Enter new Time (HH:MM): ";
+            cin.ignore();
+            getline(cin, newTime);
+
+            cout << "Enter new Fare: ";
+            cin >> newFare;
+
+            cout << "Enter new Available Seats: ";
+            cin >> newSeats;
+
+            if (flightBST.updateFlight(flightID, newTime, newFare, newSeats))
+                cout << "Flight updated successfully!\n";
+            else
+                cout << "Flight not found!\n";
+            break;
+        }
+        case 4:
+        {
+            int flightID;
+            cout << "Enter Flight ID to remove: ";
+            cin >> flightID;
+
+            if (flightBST.removeFlight(flightID))
+                cout << "Flight removed successfully!\n";
+            else
+                cout << "Flight not found!\n";
+            break;
+        }
+        case 5:
+            cout << "Exiting...\n";
+            return;
+        default:
+            cout << "Invalid choice. Please try again.\n";
+        }
+    }
+}
+
 void mainMenuAdmin(FlightBST &flightBST) { cout << "hehe"; };
-void mainMenuStaff(FlightBST &flightBST) { cout << "huhu"; };
 
 unordered_map<string, pair<string, string>> users; // stores email, password pair
 
