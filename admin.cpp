@@ -81,7 +81,6 @@ public:
     }
 };
 
-
 struct Flight
 {
     int flightID;
@@ -388,7 +387,7 @@ void bookFlight(FlightBST &flightBST, BookingLinkedList &bookingList)
 
         // Use the original fare for payment
         Flight bookedFlight = flightBST.getFlightByID(flightID); // Retrieve the flight details
-        double fare = bookedFlight.fare;          // Fare in PKR
+        double fare = bookedFlight.fare;                         // Fare in PKR
 
         // Add each passenger to the booking linked list
         for (const auto &name : passengerNames)
@@ -417,7 +416,6 @@ void displayPassengerBookings(BookingLinkedList &bookingList)
     bookingList.displayBookings();
 }
 
-
 // Add default flights
 void addDefaultFlights(FlightBST &flightBST)
 {
@@ -427,7 +425,7 @@ void addDefaultFlights(FlightBST &flightBST)
 }
 
 // Main menu for the passenger
-void mainMenuPassenger(FlightBST &flightBST)
+void mainMenuPassenger(FlightBST &flightBST, BookingLinkedList &bookingList)
 {
     while (true)
     {
@@ -462,7 +460,7 @@ void mainMenuPassenger(FlightBST &flightBST)
             break;
         }
         case 3:
-            bookFlight(flightBST); // Call the new booking function
+            bookFlight(flightBST, bookingList); // Call the new booking function
             break;
         case 4:
             cout << "Thank you for using GIKI Airlines. Goodbye!\n";
@@ -634,7 +632,7 @@ bool loginUser(string &emailOut, string &nameOut)
 }
 
 // Function to register a new user
-void registerUser(FlightBST &flightBST, const string &role)
+void registerUser(FlightBST &flightBST, BookingLinkedList &bookingList, const string &role)
 {
     string name, email, password;
 
@@ -698,7 +696,7 @@ void registerUser(FlightBST &flightBST, const string &role)
         if (loginUser(emailOut, nameOut))
         {
             if (role == "Passenger")
-                mainMenuPassenger(flightBST);
+                mainMenuPassenger(flightBST, bookingList);
             else if (role == "Airline Staff")
                 mainMenuStaff(flightBST);
             else if (role == "Admin")
@@ -711,7 +709,7 @@ void registerUser(FlightBST &flightBST, const string &role)
     }
 }
 
-void mainMenu(FlightBST &flightBST)
+void mainMenu(FlightBST &flightBST, BookingLinkedList &bookingList)
 {
     string roleChoice;
     cout << "Welcome to GIKI Airlines!\n";
@@ -727,13 +725,13 @@ void mainMenu(FlightBST &flightBST)
 
         if (subChoice == "1")
         {
-            registerUser(flightBST, "Passenger");
+            registerUser(flightBST, bookingList, "Passenger");
         }
         else if (subChoice == "2")
         {
             string emailOut, nameOut;
             if (loginUser(emailOut, nameOut))
-                mainMenuPassenger(flightBST);
+                mainMenuPassenger(flightBST, bookingList);
         }
     }
     else if (roleChoice == "2")
@@ -744,7 +742,7 @@ void mainMenu(FlightBST &flightBST)
 
         if (subChoice == "1")
         {
-            registerUser(flightBST, "Airline Staff");
+            registerUser(flightBST, bookingList, "Airline Staff");
         }
         else if (subChoice == "2")
         {
@@ -761,7 +759,7 @@ void mainMenu(FlightBST &flightBST)
 
         if (subChoice == "1")
         {
-            registerUser(flightBST, "Admin");
+            registerUser(flightBST, bookingList, "Admin");
         }
         else if (subChoice == "2")
         {
@@ -780,6 +778,7 @@ int main()
 {
 
     FlightBST flightBST;
+    BookingLinkedList bookingList;
     addDefaultFlights(flightBST);
 
     // Load the users from file into the map (for persistent storage)
@@ -795,7 +794,7 @@ int main()
     }
 
     // Display the main menu
-    mainMenu(flightBST);
+    mainMenu(flightBST, bookingList);
 
     return 0;
 }
