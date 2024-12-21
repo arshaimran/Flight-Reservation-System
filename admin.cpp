@@ -12,6 +12,76 @@ using namespace std;
 // To store payment history for auditing purposes
 unordered_map<string, string> paymentHistory;
 
+struct Passenger
+{
+    string name;
+    int flightID;
+    string flightTime;
+    string flightDate;
+    double fare;
+
+    Passenger(string n, int fID, string fTime, string fDate, double f)
+        : name(n), flightID(fID), flightTime(fTime), flightDate(fDate), fare(f) {}
+};
+
+struct PassengerNode
+{
+    Passenger passenger;
+    PassengerNode *next;
+
+    PassengerNode(Passenger p) : passenger(p), next(nullptr) {}
+};
+
+class BookingLinkedList
+{
+private:
+    PassengerNode *head;
+
+public:
+    BookingLinkedList() : head(nullptr) {}
+
+    // Add a new booking to the linked list
+    void addBooking(const Passenger &passenger)
+    {
+        PassengerNode *newNode = new PassengerNode(passenger);
+        if (!head)
+        {
+            head = newNode;
+        }
+        else
+        {
+            PassengerNode *current = head;
+            while (current->next)
+            {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+    }
+
+    // Display all bookings
+    void displayBookings()
+    {
+        if (!head)
+        {
+            cout << "No bookings found.\n";
+            return;
+        }
+
+        PassengerNode *current = head;
+        while (current)
+        {
+            cout << "Passenger: " << current->passenger.name
+                 << ", Flight ID: " << current->passenger.flightID
+                 << ", Date: " << current->passenger.flightDate
+                 << ", Time: " << current->passenger.flightTime
+                 << ", Fare: " << current->passenger.fare << " PKR\n";
+            current = current->next;
+        }
+    }
+};
+
+
 struct Flight
 {
     int flightID;
@@ -286,7 +356,7 @@ bool processPayment(const string &userName, int fare)
 }
 
 // Booking function to use the original fare for payment
-void bookFlight(FlightBST &flightBST)
+void bookFlight(FlightBST &flightBST, BookingLinkedList &bookingList)
 {
     int flightID, numSeats;
     string passengerName;
@@ -318,26 +388,22 @@ void bookFlight(FlightBST &flightBST)
 
         // Use the original fare for payment
         Flight bookedFlight = flightBST.getFlightByID(flightID); // Retrieve the flight details
-        int fare = static_cast<int>(bookedFlight.fare);          // Fare in PKR
+        double fare = bookedFlight.fare;          // Fare in PKR
 
-        cout << "Proceeding to payment...\n";
-        cout << "Fare for this flight is: " << fare << " PKR.\n";
-
-        cout << "Are you ready to proceed with payment? (1 for Yes, 0 for No): ";
-        int readyForPayment;
-        cin >> readyForPayment;
-
-        if (readyForPayment == 1)
+        // Add each passenger to the booking linked list
+        for (const auto &name : passengerNames)
         {
-            string userName = passengerNames[0]; // Assume first passenger is paying
-            if (processPayment(userName, fare))
-            {
-                cout << "Payment and booking successfully completed. Thank you for choosing GIKI Airlines.\n";
-            }
+            Passenger newPassenger(name, flightID, bookedFlight.time, bookedFlight.date, fare);
+            bookingList.addBooking(newPassenger);
         }
-        else
+
+        cout << "Passengers added to booking list.\n";
+
+        // Proceed to payment
+        cout << "Proceeding to payment...\n";
+        if (processPayment(passengerNames[0], static_cast<int>(fare))) // Use first passenger for payment
         {
-            cout << "Booking reserved. Please make payment soon to confirm your seats.\n";
+            cout << "Payment and booking successfully completed. Thank you for choosing GIKI Airlines.\n";
         }
     }
     else
@@ -345,6 +411,13 @@ void bookFlight(FlightBST &flightBST)
         cout << "Booking failed. Please try again.\n";
     }
 }
+
+void displayPassengerBookings(BookingLinkedList &bookingList)
+{
+    bookingList.displayBookings();
+}
+
+
 // Add default flights
 void addDefaultFlights(FlightBST &flightBST)
 {
