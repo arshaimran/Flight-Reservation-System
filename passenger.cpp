@@ -8,6 +8,8 @@
 
 using namespace std;
 
+unordered_map<string, string> paymentHistory; // stores user payment history
+
 struct Flight
 {
     int flightID;
@@ -87,6 +89,7 @@ private:
         searchFlightsHelper(node->left, origin, destination, date);
         searchFlightsHelper(node->right, origin, destination, date);
     }
+    // Method to book seats on a flight
 
 public:
     FlightBST() : root(nullptr), flightIDCounter(1) {}
@@ -122,6 +125,35 @@ public:
         cout << "Search Results:\n";
         searchFlightsHelper(root, origin, destination, date);
     }
+
+    bool bookSeats(int flightID, int numSeats)
+    {
+        return bookSeatsHelper(root, flightID, numSeats);
+    }
+
+    // Helper method to traverse BST and update seat count
+    bool bookSeatsHelper(BSTNode *node, int flightID, int numSeats)
+    {
+        if (!node)
+            return false;
+
+        if (node->flight.flightID == flightID)
+        {
+            if (node->flight.availableSeats >= numSeats)
+            {
+                node->flight.availableSeats -= numSeats;
+                return true;
+            }
+            else
+            {
+                cout << "Not enough seats available on Flight ID: " << flightID << endl;
+                return false;
+            }
+        }
+
+        return bookSeatsHelper(node->left, flightID, numSeats) ||
+               bookSeatsHelper(node->right, flightID, numSeats);
+    }
 };
 
 // Add default flights
@@ -141,7 +173,8 @@ void mainMenuPassenger(FlightBST &flightBST)
         cout << "\nWelcome to GIKI Flights!\n";
         cout << "1. View all available flights\n";
         cout << "2. Search for flights\n";
-        cout << "3. Exit\n";
+        cout << "3. Book a flight\n"; // New option for booking
+        cout << "4. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -166,7 +199,10 @@ void mainMenuPassenger(FlightBST &flightBST)
             flightBST.searchFlights(origin, destination, date);
             break;
         }
-        case 3:
+        case 3: // Call bookFlight function
+            bookFlight(flightBST);
+            break;
+        case 4:
             cout << "Thank you for using GIKI Airlines. Goodbye!\n";
             return;
         default:
