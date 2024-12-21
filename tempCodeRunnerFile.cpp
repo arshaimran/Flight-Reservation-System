@@ -16,6 +16,7 @@ unordered_map<string, pair<string, string>> users; // stores email, password pai
 
 void addUser(const string &role);
 void removeUser();
+void mainMenu(FlightBST &flightBST, BookingLinkedList &bookingList);
 
 struct Passenger
 {
@@ -434,7 +435,70 @@ void addDefaultFlights(FlightBST &flightBST)
     flightBST.addFlight("Karachi", "Lahore", "2024-12-15", "16:00", 67120.0, 40);
 }
 
-void mainMenu(FlightBST &flightBST, BookingLinkedList &bookingList);
+void mainMenu(FlightBST &flightBST, BookingLinkedList &bookingList)
+{
+    string roleChoice;
+    cout << "Welcome to GIKI Airlines!\n";
+    cout << "Please select your role:\n";
+    cout << "1. Passenger\n2. Airline Staff\n3. Admin\n";
+    cin >> roleChoice;
+
+    if (roleChoice == "1")
+    {
+        string subChoice;
+        cout << "1. Register\n2. Login\nEnter your choice: ";
+        cin >> subChoice;
+
+        if (subChoice == "1")
+        {
+            registerUser(flightBST, bookingList, "Passenger");
+        }
+        else if (subChoice == "2")
+        {
+            string emailOut, nameOut;
+            if (loginUser(emailOut, nameOut))
+                mainMenuPassenger(flightBST, bookingList);
+        }
+    }
+    else if (roleChoice == "2")
+    {
+        string subChoice;
+        cout << "1. Register\n2. Login\nEnter your choice: ";
+        cin >> subChoice;
+
+        if (subChoice == "1")
+        {
+            registerUser(flightBST, bookingList, "Airline Staff");
+        }
+        else if (subChoice == "2")
+        {
+            string emailOut, nameOut;
+            if (loginUser(emailOut, nameOut))
+                mainMenuStaff(flightBST, bookingList);
+        }
+    }
+    else if (roleChoice == "3")
+    {
+        string subChoice;
+        cout << "1. Register\n2. Login\nEnter your choice: ";
+        cin >> subChoice;
+
+        if (subChoice == "1")
+        {
+            registerUser(flightBST, bookingList, "Admin");
+        }
+        else if (subChoice == "2")
+        {
+            string emailOut, nameOut;
+            if (loginUser(emailOut, nameOut))
+                mainMenuAdmin(flightBST, bookingList);
+        }
+    }
+    else
+    {
+        cout << "Invalid role selected. Exiting...\n";
+    }
+}
 
 // Main menu for the passenger
 void mainMenuPassenger(FlightBST &flightBST, BookingLinkedList &bookingList)
@@ -825,71 +889,6 @@ void removeUser()
     else
     {
         cout << "User not found.\n";
-    }
-}
-
-void mainMenu(FlightBST &flightBST, BookingLinkedList &bookingList)
-{
-    string roleChoice;
-    cout << "Welcome to GIKI Airlines!\n";
-    cout << "Please select your role:\n";
-    cout << "1. Passenger\n2. Airline Staff\n3. Admin\n";
-    cin >> roleChoice;
-
-    if (roleChoice == "1")
-    {
-        string subChoice;
-        cout << "1. Register\n2. Login\nEnter your choice: ";
-        cin >> subChoice;
-
-        if (subChoice == "1")
-        {
-            registerUser(flightBST, bookingList, "Passenger");
-        }
-        else if (subChoice == "2")
-        {
-            string emailOut, nameOut;
-            if (loginUser(emailOut, nameOut))
-                mainMenuPassenger(flightBST, bookingList);
-        }
-    }
-    else if (roleChoice == "2")
-    {
-        string subChoice;
-        cout << "1. Register\n2. Login\nEnter your choice: ";
-        cin >> subChoice;
-
-        if (subChoice == "1")
-        {
-            registerUser(flightBST, bookingList, "Airline Staff");
-        }
-        else if (subChoice == "2")
-        {
-            string emailOut, nameOut;
-            if (loginUser(emailOut, nameOut))
-                mainMenuStaff(flightBST, bookingList);
-        }
-    }
-    else if (roleChoice == "3")
-    {
-        string subChoice;
-        cout << "1. Register\n2. Login\nEnter your choice: ";
-        cin >> subChoice;
-
-        if (subChoice == "1")
-        {
-            registerUser(flightBST, bookingList, "Admin");
-        }
-        else if (subChoice == "2")
-        {
-            string emailOut, nameOut;
-            if (loginUser(emailOut, nameOut))
-                mainMenuAdmin(flightBST, bookingList);
-        }
-    }
-    else
-    {
-        cout << "Invalid role selected. Exiting...\n";
     }
 }
 
