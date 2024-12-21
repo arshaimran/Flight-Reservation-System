@@ -206,6 +206,25 @@ public:
         return node;
     }
 
+    Flight getFlightByID(int flightID)
+    {
+        BSTNode *node = root;
+        while (node)
+        {
+            if (node->flight.flightID == flightID)
+            {
+                return node->flight;
+            }
+            else if (flightID < node->flight.flightID)
+                node = node->left;
+            else
+                node = node->right;
+        }
+
+        // If the flight is not found, we can throw an exception or return a default Flight object.
+        throw runtime_error("Flight not found");
+    }
+
     // Helper to find the minimum node
     BSTNode *findMin(BSTNode *node)
     {
@@ -222,16 +241,7 @@ public:
     }
 };
 
-// Function to calculate random fare for a flight
-int calculateFare()
-{
-    srand(time(0));                  // Seed the random number generator
-    int fare = rand() % 5000 + 1000; // Random fare between 1000 and 6000
-    cout << "Fare for this flight is: " << fare << " PKR.\n";
-    return fare;
-}
-
-// Function to process payment (mock implementation)
+// Function to process payment (using the original fare set when adding/updating flights)
 bool processPayment(const string &userName, int fare)
 {
     string bankName, cardHolder, cardNumber, expiryDate, cvv;
@@ -265,8 +275,7 @@ bool processPayment(const string &userName, int fare)
 
     // Simulate a delay to process payment
     cout << "Processing payment...\n";
-    (std::chrono::seconds(3));
-    // 3 seconds delay
+    (std::chrono::seconds(3)); // 3 seconds delay
 
     // Always make payment successful
     cout << "Payment successful!\n";
@@ -276,6 +285,7 @@ bool processPayment(const string &userName, int fare)
     return true;
 }
 
+// Booking function to use the original fare for payment
 void bookFlight(FlightBST &flightBST)
 {
     int flightID, numSeats;
@@ -306,9 +316,12 @@ void bookFlight(FlightBST &flightBST)
             cout << "- " << name << endl;
         }
 
-        // Fare Calculation and Payment
-        cout << "Proceeding to fare calculation...\n";
-        int fare = calculateFare();
+        // Use the original fare for payment
+        Flight bookedFlight = flightBST.getFlightByID(flightID); // Retrieve the flight details
+        int fare = static_cast<int>(bookedFlight.fare);          // Fare in PKR
+
+        cout << "Proceeding to payment...\n";
+        cout << "Fare for this flight is: " << fare << " PKR.\n";
 
         cout << "Are you ready to proceed with payment? (1 for Yes, 0 for No): ";
         int readyForPayment;
@@ -332,13 +345,12 @@ void bookFlight(FlightBST &flightBST)
         cout << "Booking failed. Please try again.\n";
     }
 }
-
 // Add default flights
 void addDefaultFlights(FlightBST &flightBST)
 {
-    flightBST.addFlight("Lahore", "Islamabad", "2024-12-15", "08:00", 100.0, 50);
-    flightBST.addFlight("Islamabad", "Karachi", "2024-12-15", "12:00", 150.0, 60);
-    flightBST.addFlight("Karachi", "Lahore", "2024-12-15", "16:00", 120.0, 40);
+    flightBST.addFlight("Lahore", "Islamabad", "2024-12-15", "08:00", 18400.0, 50);
+    flightBST.addFlight("Islamabad", "Karachi", "2024-12-15", "12:00", 45150.0, 60);
+    flightBST.addFlight("Karachi", "Lahore", "2024-12-15", "16:00", 67120.0, 40);
 }
 
 // Main menu for the passenger
