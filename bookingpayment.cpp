@@ -4,8 +4,13 @@
 #include <string>
 #include <unordered_map>
 #include <regex>
+#include <thread> // Required for sleep_for
+#include <chrono> // Required for chrono
 
 using namespace std;
+
+// To store payment history for auditing purposes
+unordered_map<string, string> paymentHistory;
 
 struct Flight
 {
@@ -151,6 +156,59 @@ public:
     }
 };
 
+// Function to calculate random fare for a flight
+int calculateFare()
+{
+    srand(time(0));                  // Seed the random number generator
+    int fare = rand() % 5000 + 1000; // Random fare between 1000 and 6000
+    cout << "Fare for this flight is: " << fare << " PKR.\n";
+    return fare;
+}
+
+// Function to process payment (mock implementation)
+bool processPayment(const string &userName, int fare)
+{
+    string bankName, cardHolder, cardNumber, expiryDate, cvv;
+
+    // Collect payment details
+    cout << "Enter Bank Name: ";
+    cin.ignore();
+    getline(cin, bankName);
+
+    cout << "Enter Cardholder Name: ";
+    getline(cin, cardHolder);
+
+    cout << "Enter Card Number (16 digits): ";
+    cin >> cardNumber;
+    while (cardNumber.length() != 16 || !all_of(cardNumber.begin(), cardNumber.end(), ::isdigit))
+    {
+        cout << "Invalid card number. Please enter a 16-digit card number: ";
+        cin >> cardNumber;
+    }
+
+    cout << "Enter Expiry Date (MM/YY): ";
+    cin >> expiryDate;
+
+    cout << "Enter CVV (3 digits): ";
+    cin >> cvv;
+    while (cvv.length() != 3 || !all_of(cvv.begin(), cvv.end(), ::isdigit))
+    {
+        cout << "Invalid CVV. Please enter a 3-digit CVV: ";
+        cin >> cvv;
+    }
+
+    // Simulate a delay to process payment
+    cout << "Processing payment...\n";
+    (chrono::seconds(3)); // 3 seconds delay
+
+    // Always make payment successful
+    cout << "Payment successful!\n";
+
+    // Save payment history for auditing
+    paymentHistory[userName] = "Paid " + to_string(fare) + " PKR.";
+    return true;
+}
+
 void bookFlight(FlightBST &flightBST)
 {
     int flightID, numSeats;
@@ -164,10 +222,10 @@ void bookFlight(FlightBST &flightBST)
     cin >> numSeats;
 
     // Collect passenger names
-    cin.ignore();
     for (int i = 1; i <= numSeats; ++i)
     {
         cout << "Enter passenger " << i << "'s name: ";
+        cin.ignore();
         getline(cin, passengerName);
         passengerNames.push_back(passengerName);
     }
@@ -180,8 +238,27 @@ void bookFlight(FlightBST &flightBST)
         {
             cout << "- " << name << endl;
         }
-        cout << "Proceeding to payment...\n";
-        cout << "Thank you for choosing GIKI Airlines.\n";
+
+        // Fare Calculation and Payment
+        cout << "Proceeding to fare calculation...\n";
+        int fare = calculateFare();
+
+        cout << "Are you ready to proceed with payment? (1 for Yes, 0 for No): ";
+        int readyForPayment;
+        cin >> readyForPayment;
+
+        if (readyForPayment == 1)
+        {
+            string userName = passengerNames[0]; // Assume first passenger is paying
+            if (processPayment(userName, fare))
+            {
+                cout << "Payment and booking successfully completed. Thank you for choosing GIKI Airlines.\n";
+            }
+        }
+        else
+        {
+            cout << "Booking reserved. Please make payment soon to confirm your seats.\n";
+        }
     }
     else
     {
@@ -206,7 +283,7 @@ void mainMenuPassenger(FlightBST &flightBST)
         cout << "\nWelcome to GIKI Flights!\n";
         cout << "1. View all available flights\n";
         cout << "2. Search for flights\n";
-        cout << "3. Book a flight\n"; // New option for booking
+        cout << "3. Book a flight\n"; // New option
         cout << "4. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
@@ -232,8 +309,8 @@ void mainMenuPassenger(FlightBST &flightBST)
             flightBST.searchFlights(origin, destination, date);
             break;
         }
-        case 3: // Call bookFlight function
-            bookFlight(flightBST);
+        case 3:
+            bookFlight(flightBST); // Call the new booking function
             break;
         case 4:
             cout << "Thank you for using GIKI Airlines. Goodbye!\n";
