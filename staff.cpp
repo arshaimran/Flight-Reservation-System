@@ -71,7 +71,7 @@ private:
     {
         cout << "Flight ID: " << flight.flightID << ", Origin: " << flight.origin
              << ", Destination: " << flight.destination << ", Date: " << flight.date
-             << ", Time: " << flight.time << ", Fare: $" << flight.fare
+             << ", Time: " << flight.time << ", Fare: RS" << flight.fare
              << ", Available Seats: " << flight.availableSeats << endl;
     }
 
